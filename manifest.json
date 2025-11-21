@@ -1,7 +1,7 @@
 {
   "name": "Laporan Harian PPPK BPS Sumbar",
   "short_name": "Laporan PPPK",
-  "start_url": "./UJICOBA TES.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0047AB",
@@ -17,4 +17,5 @@
       "type": "image/png"
     }
   ]
+
 }
