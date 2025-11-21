@@ -268,10 +268,10 @@ const fileInput = document.getElementById("fileInput");
 const fileNameDisplay = document.getElementById("fileNameDisplay");
 
 fileInput.addEventListener("change", function () {
-  fileNameDisplay.textContent = this.files.length > 0 ? this.files[0].name : "Tidak ada file";
+  fileNameDisplay.textContent = this.files.length > 0 ? this.files[0].name : "Belum ada file";
 });
 
-// Convert file → Base64
+// Konversi file → base64
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const fr = new FileReader();
@@ -281,6 +281,7 @@ function fileToBase64(file) {
   });
 }
 
+// === SUBMIT FORM ===
 form.addEventListener("submit", async function (e) {
   e.preventDefault();
 
@@ -292,9 +293,9 @@ form.addEventListener("submit", async function (e) {
   submitButton.classList.add("is-loading");
 
   try {
-    // Mengambil data form
     const fd = new FormData(form);
 
+    // Payload ke Apps Script
     const payload = {
       tanggal: fd.get("Tanggal"),
       jam: fd.get("Jam"),
@@ -302,20 +303,25 @@ form.addEventListener("submit", async function (e) {
       kegiatan: fd.get("Laporan Kegiatan"),
     };
 
-    // Jika upload file
+    // Jika ada file → tambahkan base64
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
       payload.fileBase64 = await fileToBase64(file);
       payload.mimeType = file.type;
+      payload.fileName = file.name;
     }
 
-    // URL Web Apps yang Anda deploy
-    fetch("https://script.google.com/macros/s/AKfycbxzL-hsD0q2w-kizTsu4ct9tV5xtyZDecdrnrTUaoDiHRwRRxcsHsQm3PYwvKRMmyZgmw/exec", {
-  method: "POST",
-  mode: "cors",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(formData)
-});
+    // Web App URL
+    const response = await fetch(
+      "https://script.google.com/macros/s/AKfycbxzL-hsD0q2w-kizTsu4ct9tV5xtyZDecdrnrTUaoDiHRwRRxcsHsQm3PYwvKRMmyZgmw/exec",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
 
     const result = await response.json();
 
@@ -326,7 +332,7 @@ form.addEventListener("submit", async function (e) {
       form.reset();
       fileNameDisplay.textContent = "Belum ada file";
     } else {
-      throw new Error("Gagal menyimpan");
+      throw new Error("Gagal menyimpan data!");
     }
 
   } catch (err) {
@@ -344,7 +350,7 @@ form.addEventListener("submit", async function (e) {
   }, 3500);
 });
 
-// Tombol reset
+// Tombol Reset
 function resetForm() {
   form.reset();
   fileNameDisplay.textContent = "Belum ada file";
